@@ -1,0 +1,93 @@
+#include <Servo.h>
+#include <SoftwareSerial.h>
+Servo servo1;
+Servo lift1;
+Servo lift2;
+int bluetoothTx=1;
+int bluetoothRx=2;
+SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
+int LED=13;
+
+int lim1=4;
+int lim2=5;
+int bottleState=0; //0=closed, 1=opened
+
+
+void setup() {
+
+
+  pinMode(lim1,INPUT);
+  bluetooth.begin(115200);
+  pinMode(LED,OUTPUT);
+  servo1.attach(9);
+  lift1.attach(2);
+  lift2.attach(11);
+  int switch1=digitalRead(lim1);
+  int switch2=digitalRead(lim2);
+
+  
+  
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  
+  int switch1=digitalRead(lim1);
+  int switch2=digitalRead(lim2);
+ 
+  if (Serial.available()>0 && bottleState==0){
+    
+      if (switch1==LOW && bottleState==0) {
+        lift1.write(70);
+        lift2.write(70);
+      }
+      if (switch1==HIGH && bottleState==0) {
+        lift1.write(93);
+        lift2.write(93);
+        servo1.write(165);
+        delay(1000);
+        servo1.write(65);
+        delay(1000);
+        servo1.write(93);
+        bottleState=1;
+        lift1.write(165);
+        lift2.write(165);
+        delay(700);
+      }
+      if (switch1==HIGH && bottleState==1){
+        lift1.write(165);
+        lift2.write(165);
+      }
+      if (switch2==LOW && bottleState==1) {
+        lift1.write(165);
+        lift2.write(165);
+        bottleState=2;
+      }
+  }
+  if (switch2==HIGH && bottleState==2) {
+    lift1.write(93);
+    lift2.write(93);
+    
+    tone(6,659.25,200);
+    delay(200);
+    tone(6,622.25,200);
+    delay(200);
+    tone(6,659.25,200);
+    delay(200);
+    tone(6,622.25,200);
+    delay(200);
+    tone(6,659.25,200);
+    delay(200);
+    tone(6,493.88,200);
+    delay(200);
+    tone(6,587.33,200);
+    delay(200);
+    tone(6,523.25,200);
+    delay(200);
+    tone(6,440,400);
+    bottleState=1;
+  }
+
+  
+}
