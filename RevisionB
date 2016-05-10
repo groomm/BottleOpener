@@ -1,0 +1,134 @@
+int WAIT = 0;
+int RUN = 1;
+
+int lim1=2;
+int lim2=3;
+
+int unT=0;
+
+int bottleState=0;
+unsigned long start=0;
+
+
+#include <Servo.h>
+#include <SoftwareSerial.h>
+
+char START_BYTE = 1;
+char ESTOP_BYTE = 2;
+int bluetoothTx=1;
+int bluetoothRx=2;
+SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
+
+Servo servo1;
+Servo lift1;
+Servo lift2;
+
+void setup() {
+  Serial.begin(9600);
+  bluetooth.begin(115200);
+  servo1.attach(9);
+  lift1.attach(4);
+  lift2.attach(5);
+  int switch1=digitalRead(lim1);
+  int switch2=digitalRead(lim2);
+}
+
+void wait() {
+  servo1.write(93);
+  lift1.write(93);
+  lift2.write(93);
+  
+}
+
+void run() {
+
+  int switch1=digitalRead(lim1);
+  int switch2=digitalRead(lim2);
+
+
+  if (switch1==LOW && bottleState==0 && unT==0) {
+        lift1.write(70);
+        lift2.write(70);
+        
+      }
+  if (switch1==HIGH && bottleState==0 && unT==0) {
+    unT=1; 
+    start=millis();
+      }
+  
+  if (millis()<start+1000 && unT==1){
+    lift1.write(93);
+    lift2.write(93);
+    servo1.write(165);
+  }
+  if (millis()>=start+1000 && millis()<start+2000 && unT==1){
+    servo1.write(65);
+  }
+  if (millis()>=start+2000 && unT==1) {
+    servo1.write(93);
+    lift1.write(165);
+    lift2.write(165);
+    unT=0;
+    bottleState=2;
+  }
+  
+  if (switch2==HIGH && bottleState==2 && unT==0) {
+    lift1.write(93);
+    lift2.write(93);
+    
+    tone(6,659.25,200);
+    delay(200);
+    tone(6,622.25,200);
+    delay(200);
+    tone(6,659.25,200);
+    delay(200);
+    tone(6,622.25,200);
+    delay(200);
+    tone(6,659.25,200);
+    delay(200);
+    tone(6,493.88,200);
+    delay(200);
+    tone(6,587.33,200);
+    delay(200);
+    tone(6,523.25,200);
+    delay(200);
+    tone(6,440,400);
+    bottleState=3;
+  }
+
+}
+
+int next_state(int cur_state) {
+  int state = cur_state;
+if (Serial.available()>0) {
+  char input = Serial.read();
+  switch (input) {
+  case 1:
+    state = 1;
+    break;
+  case 2:
+    state = 0;
+    break;
+  default:
+    break;
+}
+}
+
+return state;
+}
+
+int state = 0;
+void loop() {
+  switch (state) {
+  case 0:
+  wait();
+    break;
+  case 1:
+    run();
+    break;
+  default:
+    break;
+}
+
+state = next_state(state);
+}
