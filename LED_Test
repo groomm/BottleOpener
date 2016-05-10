@@ -1,0 +1,46 @@
+#include <SoftwareSerial.h>
+int bluetoothTx=1;
+int bluetoothRx=2;
+SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
+int lim1=2;
+int lim2=3;
+int ledR=11;
+int ledY=9;
+byte inByte=0;
+
+
+void setup() {
+  pinMode(9,OUTPUT);
+  pinMode(11,OUTPUT);
+  Serial.begin(9600);
+  digitalWrite(9,LOW);
+  digitalWrite(11,LOW);
+  pinMode(lim1,INPUT);
+  pinMode(lim2,INPUT);
+}
+
+void loop() {
+
+ 
+  
+  if (Serial.available()>0){
+    inByte=Serial.read();
+    int switch1=digitalRead(lim1);
+    int switch2=digitalRead(lim2);
+    
+    while (inByte==1){
+      int switch1=digitalRead(lim1);
+      int switch2=digitalRead(lim2);
+      inByte=Serial.read();
+      if (switch1==HIGH){
+        digitalWrite(ledR,HIGH);
+        digitalWrite(ledY,LOW);
+        delay(500);
+      }
+      else if (switch1==LOW) {
+        digitalWrite(ledY,HIGH);
+        digitalWrite(ledR,LOW);
+        delay(500);
+      }
+      
+      
